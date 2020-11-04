@@ -24,6 +24,11 @@
 #include "BLEProperty.h"
 #include "BLEStringCharacteristic.h"
 #include "BLETypedCharacteristics.h"
+
+#if defined(ARDUINO_PNUCLEO_WB55RG)
+#include "utility/HCISharedMemTransport.h"
+#else
 #include "utility/HCISpiTransport.h"
+#endif
 
 #endif
