@@ -57,11 +57,6 @@
 /* timeout (in ms) to wait for an incoming event */
 #define BLE_IPCC_TIMEOUT 10000
 
-/* BLE chip of the stm32WB */
-typedef enum BLEChip_s {
-  STM32WB_RF
-} BLE_WB_Chip_t;
-
 /* to received BLE packet from the SharedMem */
 void evt_received(TL_EvtPacket_t *hcievt);
 
@@ -70,7 +65,7 @@ uint16_t mbox_write(uint8_t type, uint16_t len, const uint8_t *pData);
 
 class HCISharedMemTransportClass : public HCITransportInterface {
 public:
-  HCISharedMemTransportClass(BLE_WB_Chip_t _ble_chip);
+  HCISharedMemTransportClass();
   virtual ~HCISharedMemTransportClass();
 
   virtual int begin();
@@ -85,8 +80,6 @@ public:
   virtual size_t write(const uint8_t* data, size_t length);
 
 private:
-
-  BLE_WB_Chip_t _ble_chip;
 
   /* method to initialize the BLE device */
   void transport_init(void);

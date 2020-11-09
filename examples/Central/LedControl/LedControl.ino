@@ -30,7 +30,7 @@ BLELocalDevice BLE(&HCISpiTransport);
 const int buttonPin = PC13; // set buttonPin to digital pin PC13
 #elif defined(ARDUINO_PNUCLEO_WB55RG)
 /* PNUCLEO_WB55RG */
-HCISharedMemTransportClass HCISharedMemTransport(STM32WB_RF);
+HCISharedMemTransportClass HCISharedMemTransport;
 BLELocalDevice BLE(&HCISharedMemTransport);
 const int buttonPin = PC4; // set buttonPin to digital pin PC4
 #else

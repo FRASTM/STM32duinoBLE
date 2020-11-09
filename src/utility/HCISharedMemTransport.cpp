@@ -59,8 +59,7 @@ volatile bool phase_running;
 /** Bluetooth Device Address */
 static uint8_t bd_addr_udn[CONFIG_DATA_PUBADDR_LEN];
 
-HCISharedMemTransportClass::HCISharedMemTransportClass(BLE_WB_Chip_t _ble_chip) :
-  _ble_chip(_ble_chip)
+HCISharedMemTransportClass::HCISharedMemTransportClass()
 {
   _read_index = 0; /* fifo position when reading */
   _write_index = 0; /* fifo position when receiving */
