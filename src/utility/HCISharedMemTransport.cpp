@@ -155,20 +155,6 @@ static void syscmd_status_not(SHCI_TL_CmdStatus_t status)
 #endif /*(PRINT_IPCC_INFO)*/
 }
 
-void shci_notify_asynch_evt(void *pdata)
-{
-  UNUSED(pdata);
-  /* Need to parse data in future version */
-  shci_user_evt_proc();
-}
-
-void shci_register_io_bus(tSHciIO *fops)
-{
-  /* Register IO bus services */
-  fops->Init    = TL_SYS_Init;
-  fops->Send    = TL_SYS_SendCmd;
-}
-
 /* to received BLE packet from the SharedMem */
 void evt_received(TL_EvtPacket_t *hcievt)
 {
