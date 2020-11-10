@@ -42,8 +42,6 @@ extern "C" {
  ******************************************************************************/
 void HW_IPCC_Enable(void);
 void HW_IPCC_Init(void);
-void HW_IPCC_Rx_Handler(void);
-void HW_IPCC_Tx_Handler(void);
 
 void HW_IPCC_BLE_Init(void);
 void HW_IPCC_BLE_SendCmd(void);

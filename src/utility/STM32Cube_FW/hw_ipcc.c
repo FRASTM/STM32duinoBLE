@@ -52,7 +52,6 @@ static void HW_IPCC_TRACES_EvtHandler(void);
  ******************************************************************************/
 
 void IPCC_C1_RX_IRQHandler(void)
-//void HW_IPCC_Rx_Handler( void )
 {
   if (HW_IPCC_RX_PENDING(HW_IPCC_SYSTEM_EVENT_CHANNEL)) {
     HW_IPCC_SYS_EvtHandler();
@@ -69,12 +68,9 @@ void IPCC_C1_RX_IRQHandler(void)
   } else if (HW_IPCC_RX_PENDING(HW_IPCC_TRACES_CHANNEL)) {
     HW_IPCC_TRACES_EvtHandler();
   }
-
-  return;
 }
 
 void IPCC_C1_TX_IRQHandler(void)
-//void HW_IPCC_Tx_Handler( void )
 {
   if (HW_IPCC_TX_PENDING(HW_IPCC_SYSTEM_CMD_RSP_CHANNEL)) {
     HW_IPCC_SYS_CmdEvtHandler();
@@ -91,8 +87,6 @@ void IPCC_C1_TX_IRQHandler(void)
   } else if (HW_IPCC_TX_PENDING(HW_IPCC_HCI_ACL_DATA_CHANNEL)) {
     HW_IPCC_BLE_AclDataEvtHandler();
   }
-
-  return;
 }
 
 /******************************************************************************

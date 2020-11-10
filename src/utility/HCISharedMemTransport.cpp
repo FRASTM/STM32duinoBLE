@@ -21,15 +21,6 @@
 #include "HCISharedMemTransport.h"
 #include "STM32Cube_FW/hw.h"
 
-#define HW_IPCC_Tx_Handler IPCC_C1_TX_IRQHandler
-#define HW_IPCC_Rx_Handler IPCC_C1_RX_IRQHandler
-extern "C" {
-  void HW_IPCC_Tx_Handler(void);
-}
-extern "C" {
-  void HW_IPCC_Rx_Handler(void);
-}
-
 /* Private variables ---------------------------------------------------------*/
 PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static TL_CmdPacket_t BleCmdBuffer;
 
@@ -614,12 +605,6 @@ void HCISharedMemTransportClass::stm32wb_reset(void)
     IPCC,
     LL_IPCC_CHANNEL_1 | LL_IPCC_CHANNEL_2 | LL_IPCC_CHANNEL_3 | LL_IPCC_CHANNEL_4
     | LL_IPCC_CHANNEL_5 | LL_IPCC_CHANNEL_6);
-
-  /* Set IPCC default IRQ handlers */
-  //        NVIC_SetVector(IPCC_C1_TX_IRQn, (uint32_t)HW_IPCC_Tx_Handler);
-  //        NVIC_SetVector(IPCC_C1_RX_IRQn, (uint32_t)HW_IPCC_Rx_Handler);
-  NVIC_SetVector(IPCC_C1_TX_IRQn, (uint32_t)IPCC_C1_TX_IRQHandler);
-  NVIC_SetVector(IPCC_C1_RX_IRQn, (uint32_t)IPCC_C1_RX_IRQHandler);
 }
 
 int HCISharedMemTransportClass::stm32wb_start_ble(void)
