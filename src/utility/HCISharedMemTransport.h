@@ -64,33 +64,33 @@ void evt_received(TL_EvtPacket_t *hcievt);
 uint16_t mbox_write(uint8_t type, uint16_t len, const uint8_t *pData);
 
 class HCISharedMemTransportClass : public HCITransportInterface {
-public:
-  HCISharedMemTransportClass();
-  virtual ~HCISharedMemTransportClass();
+  public:
+    HCISharedMemTransportClass();
+    virtual ~HCISharedMemTransportClass();
 
-  virtual int begin();
-  virtual void end();
+    virtual int begin();
+    virtual void end();
 
-  virtual void wait(unsigned long timeout);
+    virtual void wait(unsigned long timeout);
 
-  virtual int available();
-  virtual int peek();
-  virtual int read();
+    virtual int available();
+    virtual int peek();
+    virtual int read();
 
-  virtual size_t write(const uint8_t* data, size_t length);
+    virtual size_t write(const uint8_t *data, size_t length);
 
-private:
+  private:
 
-  /* method to initialize the BLE device */
-  void transport_init(void);
-  void start_ble_rf(void);
-  void stm32wb_reset(void);
-  void stm32wb_start_ble(void);
-  int bt_ipm_ble_init(void);
-  int bt_ipm_set_addr(void);
-  int bt_ipm_set_power(void);
+    /* method to initialize the BLE device */
+    void transport_init(void);
+    void start_ble_rf(void);
+    void stm32wb_reset(void);
+    void stm32wb_start_ble(void);
+    int bt_ipm_ble_init(void);
+    int bt_ipm_set_addr(void);
+    int bt_ipm_set_power(void);
 
- };
+};
 
 /******************************************************************************
  * BLE config parameters

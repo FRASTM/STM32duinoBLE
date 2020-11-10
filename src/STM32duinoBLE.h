@@ -26,7 +26,7 @@
 #include "BLETypedCharacteristics.h"
 
 #if defined(STM32WBxx)
-#include "utility/HCISharedMemTransport.h"
+  #include "utility/HCISharedMemTransport.h"
 #endif
 #include "utility/HCISpiTransport.h"
 

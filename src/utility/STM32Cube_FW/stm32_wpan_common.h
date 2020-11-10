@@ -27,17 +27,17 @@ extern "C" {
 #endif
 
 #if   defined ( __CC_ARM )
- #define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */
- #define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
- #define __STATIC_INLINE  static __inline
+#define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */
+#define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
+#define __STATIC_INLINE  static __inline
 #elif defined ( __ICCARM__ )
- #define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */
- #define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
- #define __STATIC_INLINE  static inline
+#define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */
+#define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
+#define __STATIC_INLINE  static inline
 #elif defined ( __GNUC__ )
- #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
- #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
- #define __STATIC_INLINE  static inline
+#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
+#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+#define __STATIC_INLINE  static inline
 #endif
 
 #include <stdint.h>
@@ -47,9 +47,9 @@ extern "C" {
 #include <stdarg.h>
 #include "cmsis_compiler.h"
 
-  /* -------------------------------- *
-   *  Basic definitions               *
-   * -------------------------------- */
+/* -------------------------------- *
+ *  Basic definitions               *
+ * -------------------------------- */
 
 #undef NULL
 #define NULL                    0U
@@ -60,9 +60,9 @@ extern "C" {
 #undef TRUE
 #define TRUE                    (!0U)
 
-  /* -------------------------------- *
-   *  Critical Section definition     *
-   * -------------------------------- */
+/* -------------------------------- *
+ *  Critical Section definition     *
+ * -------------------------------- */
 #undef BACKUP_PRIMASK
 #define BACKUP_PRIMASK()    uint32_t primask_bit= __get_PRIMASK()
 
@@ -72,18 +72,18 @@ extern "C" {
 #undef RESTORE_PRIMASK
 #define RESTORE_PRIMASK()   __set_PRIMASK(primask_bit)
 
-  /* -------------------------------- *
-   *  Macro delimiters                *
-   * -------------------------------- */
+/* -------------------------------- *
+ *  Macro delimiters                *
+ * -------------------------------- */
 #undef M_BEGIN
 #define M_BEGIN     do {
 
 #undef  M_END
 #define M_END       } while(0)
 
-  /* -------------------------------- *
-   *  Some useful macro definitions   *
-   * -------------------------------- */
+/* -------------------------------- *
+ *  Some useful macro definitions   *
+ * -------------------------------- */
 #undef MAX
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
@@ -145,20 +145,20 @@ extern "C" {
 #undef PACKED_STRUCT
 
 #if defined ( __CC_ARM )
-  #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050U)
-    #define PACKED__ __attribute__((packed))
-    #define PACKED_STRUCT struct PACKED__
-  #else
-    #define PACKED__(TYPE) __packed TYPE
-    #define PACKED_STRUCT PACKED__(struct)
-  #endif
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050U)
+#define PACKED__ __attribute__((packed))
+#define PACKED_STRUCT struct PACKED__
+#else
+#define PACKED__(TYPE) __packed TYPE
+#define PACKED_STRUCT PACKED__(struct)
+#endif
 #elif defined   ( __GNUC__ )
-  #define PACKED__ __attribute__((packed))
-  #define PACKED_STRUCT struct PACKED__
+#define PACKED__ __attribute__((packed))
+#define PACKED_STRUCT struct PACKED__
 #elif defined (__ICCARM__)
-  #define PACKED_STRUCT __packed struct
+#define PACKED_STRUCT __packed struct
 #elif
-  #define PACKED_STRUCT __packed struct
+#define PACKED_STRUCT __packed struct
 #endif
 
 #ifdef __cplusplus
