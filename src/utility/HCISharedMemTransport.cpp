@@ -63,25 +63,7 @@ volatile bool phase_running;
 /** Bluetooth Device Address */
 static uint8_t bd_addr_udn[CONFIG_DATA_PUBADDR_LEN];
 
-HCISharedMemTransportClass::HCISharedMemTransportClass()
-{
-  _read_index = 0; /* fifo position when reading */
-  _write_index = 0; /* fifo position when receiving */
-
-  memset((void *)_rxbuff, 0, sizeof(_rxbuff));
-
-  sys_event = false;
-  sys_resp = false;
-  acl_data_on = false;
-
-  data_overflow = false;
-
-  phase_bd_addr = false;
-  phase_tx_power = false;
-  phase_reset = false;
-  phase_running = false;
-}
-
+/* Private functions ---------------------------------------------------------*/
 /**
  * TL Mailbox synchronisation means
  */
@@ -334,6 +316,106 @@ uint16_t mbox_write(uint8_t type, uint16_t len, const uint8_t *pData)
       break;
   }
   return len;
+}
+
+/**
+ * Few utilities functions
+ */
+/* This function fills in a BD address table */
+static bool get_bd_address(uint8_t *bd_addr)
+{
+  uint8_t *otp_addr;
+  uint32_t udn;
+  uint32_t company_id;
+  uint32_t device_id;
+  bool bd_found;
+
+  udn = LL_FLASH_GetUDN();
+
+  if (udn != 0xFFFFFFFF) {
+    /* "Found Unique Device Number: %#06x", udn) */
+
+    company_id = LL_FLASH_GetSTCompanyID();
+    device_id = LL_FLASH_GetDeviceID();
+
+    bd_addr[0] = (uint8_t)(udn & 0x000000FF);
+    bd_addr[1] = (uint8_t)((udn & 0x0000FF00) >> 8);
+    bd_addr[2] = (uint8_t)((udn & 0x00FF0000) >> 16);
+    bd_addr[3] = (uint8_t)device_id;
+    bd_addr[4] = (uint8_t)(company_id & 0x000000FF);
+    bd_addr[5] = (uint8_t)((company_id & 0x0000FF00) >> 8);
+
+    bd_found = true;
+  } else {
+    bd_addr = NULL;
+    bd_found = false;
+  }
+
+  return bd_found;
+}
+
+static void init_debug(void)
+{
+  /* In case of debug profile, configure debugger support */
+
+#if defined(CONFIG_DEBUG)
+#if defined(PRINT_IPCC_INFO)
+  printf("init_debug ENABLED\r\n");
+#endif /*(PRINT_IPCC_INFO)*/
+  /**
+   * Keep debugger enabled while in any low power mode
+   */
+  HAL_DBGMCU_EnableDBGSleepMode();
+  HAL_DBGMCU_EnableDBGStopMode();
+  HAL_DBGMCU_EnableDBGStandbyMode();
+
+  /***************** ENABLE DEBUGGER *************************************/
+  LL_EXTI_EnableIT_32_63(LL_EXTI_LINE_48);
+  LL_C2_EXTI_EnableIT_32_63(LL_EXTI_LINE_48);
+
+#else
+#if defined(PRINT_IPCC_INFO)
+  printf("init_debug DISABLED\r\n");
+#endif /*(PRINT_IPCC_INFO)*/
+  GPIO_InitTypeDef gpio_config = {0};
+
+  gpio_config.Pull = GPIO_NOPULL;
+  gpio_config.Mode = GPIO_MODE_ANALOG;
+
+  gpio_config.Pin = GPIO_PIN_15 | GPIO_PIN_14 | GPIO_PIN_13;
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  HAL_GPIO_Init(GPIOA, &gpio_config);
+
+  gpio_config.Pin = GPIO_PIN_4 | GPIO_PIN_3;
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  HAL_GPIO_Init(GPIOB, &gpio_config);
+
+  HAL_DBGMCU_DisableDBGSleepMode();
+  HAL_DBGMCU_DisableDBGStopMode();
+  HAL_DBGMCU_DisableDBGStandbyMode();
+
+#endif /* CONFIG_DEBUG */
+}
+
+/* Class definition ----------------------------------------------------------*/
+
+HCISharedMemTransportClass::HCISharedMemTransportClass()
+{
+  _read_index = 0; /* fifo position when reading */
+  _write_index = 0; /* fifo position when receiving */
+
+  memset((void *)_rxbuff, 0, sizeof(_rxbuff));
+
+  sys_event = false;
+  sys_resp = false;
+  acl_data_on = false;
+
+  data_overflow = false;
+
+  phase_bd_addr = false;
+  phase_tx_power = false;
+  phase_reset = false;
+  phase_running = false;
 }
 
 HCISharedMemTransportClass::~HCISharedMemTransportClass()
@@ -675,85 +757,6 @@ int HCISharedMemTransportClass::bt_ipm_set_power(void)
   mbox_write(data[0], 5, &data[1]);
   /* now wait for the corresponding Rx event */
   return 1; /* success */
-}
-
-/**
- * Few utilities functions
- */
-/* This function fills in a BD address table */
-static bool get_bd_address(uint8_t *bd_addr)
-{
-  uint8_t *otp_addr;
-  uint32_t udn;
-  uint32_t company_id;
-  uint32_t device_id;
-  bool bd_found;
-
-  udn = LL_FLASH_GetUDN();
-
-  if (udn != 0xFFFFFFFF) {
-    /* "Found Unique Device Number: %#06x", udn) */
-
-    company_id = LL_FLASH_GetSTCompanyID();
-    device_id = LL_FLASH_GetDeviceID();
-
-    bd_addr[0] = (uint8_t)(udn & 0x000000FF);
-    bd_addr[1] = (uint8_t)((udn & 0x0000FF00) >> 8);
-    bd_addr[2] = (uint8_t)((udn & 0x00FF0000) >> 16);
-    bd_addr[3] = (uint8_t)device_id;
-    bd_addr[4] = (uint8_t)(company_id & 0x000000FF);
-    bd_addr[5] = (uint8_t)((company_id & 0x0000FF00) >> 8);
-
-    bd_found = true;
-  } else {
-    bd_addr = NULL;
-    bd_found = false;
-  }
-
-  return bd_found;
-}
-
-static void init_debug(void)
-{
-  /* In case of debug profile, configure debugger support */
-
-#if defined(CONFIG_DEBUG)
-#if defined(PRINT_IPCC_INFO)
-  printf("init_debug ENABLED\r\n");
-#endif /*(PRINT_IPCC_INFO)*/
-  /**
-   * Keep debugger enabled while in any low power mode
-   */
-  HAL_DBGMCU_EnableDBGSleepMode();
-  HAL_DBGMCU_EnableDBGStopMode();
-  HAL_DBGMCU_EnableDBGStandbyMode();
-
-  /***************** ENABLE DEBUGGER *************************************/
-  LL_EXTI_EnableIT_32_63(LL_EXTI_LINE_48);
-  LL_C2_EXTI_EnableIT_32_63(LL_EXTI_LINE_48);
-
-#else
-#if defined(PRINT_IPCC_INFO)
-  printf("init_debug DISABLED\r\n");
-#endif /*(PRINT_IPCC_INFO)*/
-  GPIO_InitTypeDef gpio_config = {0};
-
-  gpio_config.Pull = GPIO_NOPULL;
-  gpio_config.Mode = GPIO_MODE_ANALOG;
-
-  gpio_config.Pin = GPIO_PIN_15 | GPIO_PIN_14 | GPIO_PIN_13;
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  HAL_GPIO_Init(GPIOA, &gpio_config);
-
-  gpio_config.Pin = GPIO_PIN_4 | GPIO_PIN_3;
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  HAL_GPIO_Init(GPIOB, &gpio_config);
-
-  HAL_DBGMCU_DisableDBGSleepMode();
-  HAL_DBGMCU_DisableDBGStopMode();
-  HAL_DBGMCU_DisableDBGStandbyMode();
-
-#endif /* CONFIG_DEBUG */
 }
 
 #endif /* STM32WBxx */

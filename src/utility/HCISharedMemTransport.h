@@ -92,17 +92,4 @@ class HCISharedMemTransportClass : public HCITransportInterface {
 
 };
 
-/******************************************************************************
- * BLE config parameters
- ******************************************************************************/
-static void syscmd_status_not(SHCI_TL_CmdStatus_t status);
-static void acl_data_ack(void);
-static bool acl_data_wait(void);
-static void init_debug(void);
-static bool get_bd_address(uint8_t *bd_addr);
-
-static bool sysevt_wait(void);
-static bool sysevt_check(void);
-static void sysevt_received(void *pdata);
-
 #endif /* _HCI_SHARED_MEM_TRANSPORT_H_ */
