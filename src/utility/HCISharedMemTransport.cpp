@@ -103,10 +103,9 @@ static bool sysevt_wait(void)
 #endif /*(PRINT_IPCC_INFO)*/
     /*  no event received, timeout occurs */
     return false;
-  } else {
-    /*  release immediately, now that M0 runs */
-    return true;
   }
+  /*  release immediately, now that M0 runs */
+  return true;
 }
 
 /*  WEAK callbacks from the BLE TL driver - will be called under Interrupt */
@@ -115,7 +114,6 @@ static void sysevt_received(void *pdata)
   /* For now only READY event is received, so we know this is it */
   sys_event = true;
   /* But later on ... we'll have to parse the answer */
-  return;
 }
 
 /*  returns true if sysevt was already received, which means M0 core is
@@ -127,9 +125,8 @@ static bool sysevt_check(void)
     /*  release immediately as M0 already runs */
     sys_event = false;
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 static void acl_data_ack(void)
@@ -142,7 +139,6 @@ static void acl_data_ack(void)
    * - a local pool of buffer to store packets received from the stack
    */
   acl_data_on = false;
-  return;
 }
 
 static bool acl_data_wait(void)
@@ -161,11 +157,10 @@ static bool acl_data_wait(void)
     printf("ERROR: acl data timeout\r\n");
 #endif /*(PRINT_IPCC_INFO)*/
     return false;
-  } else {
-    /*  release immediately, now that M0 runs */
-    acl_data_on = false;
-    return true;
   }
+  /*  release immediately, now that M0 runs */
+  acl_data_on = false;
+  return true;
 }
 
 static void syscmd_status_not(SHCI_TL_CmdStatus_t status)
@@ -173,14 +168,12 @@ static void syscmd_status_not(SHCI_TL_CmdStatus_t status)
 #if defined(PRINT_IPCC_INFO)
   printf("syscmd_status_not, status:%d\r\n", status);
 #endif /*(PRINT_IPCC_INFO)*/
-  return;
 }
 
 void shci_notify_asynch_evt(void *pdata)
 {
   /* Need to parse data in future version */
   shci_user_evt_proc();
-  return;
 }
 
 void shci_register_io_bus(tSHciIO *fops)
@@ -349,6 +342,7 @@ HCISharedMemTransportClass::~HCISharedMemTransportClass()
 
 int HCISharedMemTransportClass::begin()
 {
+  int status = 0;
   /* clean data Rx variables */
   _read_index = 0;
   _write_index = 0;
@@ -378,7 +372,7 @@ int HCISharedMemTransportClass::begin()
     /* Now start BLE service on firmware side, using Vendor specific
      * command on the System Channel
      */
-    stm32wb_start_ble();
+    status = stm32wb_start_ble();
 
     /* Once reset complete event is received we will need
      * to send a few more commands:
@@ -390,7 +384,7 @@ int HCISharedMemTransportClass::begin()
   printf("IPM Channel Open Completed\r\n");
 #endif /*(PRINT_IPCC_INFO)*/
 
-  return 1; /* success */
+  return status;
 }
 
 void HCISharedMemTransportClass::end()
@@ -427,13 +421,8 @@ int HCISharedMemTransportClass::available()
     data_overflow = false;
     if (_read_index != _write_index) {
       return 1;
-    } else {
-      return 0;
     }
-  } else {
-    return 0;
   }
-
   return 0;
 }
 
@@ -501,9 +490,8 @@ size_t HCISharedMemTransportClass::write(const uint8_t *data, size_t length)
     phase_running = true;
 
     return (length - 1); /* mbox_size of the HCI reset command */
-  } else {
-    return 0; /* mbox_size of the HCI reset command */
   }
+  return 0; /* mbox_size of the HCI reset command */
 }
 
 //private:
@@ -561,11 +549,9 @@ void HCISharedMemTransportClass::stm32wb_reset(void)
   //        NVIC_SetVector(IPCC_C1_RX_IRQn, (uint32_t)HW_IPCC_Rx_Handler);
   NVIC_SetVector(IPCC_C1_TX_IRQn, (uint32_t)IPCC_C1_TX_IRQHandler);
   NVIC_SetVector(IPCC_C1_RX_IRQn, (uint32_t)IPCC_C1_RX_IRQHandler);
-
-  return;
 }
 
-void HCISharedMemTransportClass::stm32wb_start_ble(void)
+int HCISharedMemTransportClass::stm32wb_start_ble(void)
 {
   SHCI_C2_Ble_Init_Cmd_Packet_t ble_init_cmd_packet = {
     0, 0, 0,                            /**< Header unused */
@@ -591,7 +577,10 @@ void HCISharedMemTransportClass::stm32wb_start_ble(void)
   /**
    * Starts the BLE Stack on CPU2
    */
-  SHCI_C2_BLE_Init(&ble_init_cmd_packet);
+  if (SHCI_C2_BLE_Init(&ble_init_cmd_packet) == SHCI_Success) {
+    return 1;
+  }
+  return 0;
 }
 
 void HCISharedMemTransportClass::transport_init(void)
@@ -627,15 +616,14 @@ void HCISharedMemTransportClass::transport_init(void)
 #if defined(PRINT_IPCC_INFO)
     printf("ERROR booting WB controller\r\n");
 #endif /*(PRINT_IPCC_INFO)*/
-    return;
+  } else {
+    /**< BLE channel initialization */
+    tl_ble_config.p_cmdbuffer = (uint8_t *)&BleCmdBuffer;
+    tl_ble_config.p_AclDataBuffer = HciAclDataBuffer;
+    tl_ble_config.IoBusEvtCallBack = evt_received;
+    tl_ble_config.IoBusAclDataTxAck = acl_data_ack;
+    TL_BLE_Init((void *)&tl_ble_config);
   }
-
-  /**< BLE channel initialization */
-  tl_ble_config.p_cmdbuffer = (uint8_t *)&BleCmdBuffer;
-  tl_ble_config.p_AclDataBuffer = HciAclDataBuffer;
-  tl_ble_config.IoBusEvtCallBack = evt_received;
-  tl_ble_config.IoBusAclDataTxAck = acl_data_ack;
-  TL_BLE_Init((void *)&tl_ble_config);
 }
 
 int HCISharedMemTransportClass::bt_ipm_set_addr(void)
@@ -663,9 +651,8 @@ int HCISharedMemTransportClass::bt_ipm_set_addr(void)
     mbox_write(data[0], 11, &data[1]);
     /* now wait for the corresponding Rx event */
     return 1; /* success */
-  } else {
-    return 0; /* Error */
   }
+  return 0; /* Error */
 }
 
 int HCISharedMemTransportClass::bt_ipm_set_power(void)
@@ -767,8 +754,6 @@ static void init_debug(void)
   HAL_DBGMCU_DisableDBGStandbyMode();
 
 #endif /* CONFIG_DEBUG */
-
-  return;
 }
 
 #endif /* STM32WBxx */

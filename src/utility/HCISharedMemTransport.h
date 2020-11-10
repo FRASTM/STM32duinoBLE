@@ -85,7 +85,7 @@ class HCISharedMemTransportClass : public HCITransportInterface {
     void transport_init(void);
     void start_ble_rf(void);
     void stm32wb_reset(void);
-    void stm32wb_start_ble(void);
+    int stm32wb_start_ble(void);
     int bt_ipm_ble_init(void);
     int bt_ipm_set_addr(void);
     int bt_ipm_set_power(void);
