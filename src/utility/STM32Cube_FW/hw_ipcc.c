@@ -20,10 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw.h"
 #include "mbox_def.h"
-#include "stm32_def.h"
-#include "stm32wbxx_ll_rcc.h"
-#include "stm32wbxx_ll_bus.h"
-#include "stm32wbxx_ll_exti.h"
 
 /* Global variables ---------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/

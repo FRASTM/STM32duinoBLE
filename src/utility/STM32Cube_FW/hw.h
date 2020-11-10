@@ -27,8 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32wbxx.h"
-#include "stm32wb55xx.h"
+#include "stm32_def.h"
 #include "stm32wbxx_ll_bus.h"
 #include "stm32wbxx_ll_exti.h"
 #include "stm32wbxx_ll_system.h"
