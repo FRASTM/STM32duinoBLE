@@ -30,7 +30,6 @@
 #include "STM32Cube_FW/tl.h"
 #include "STM32Cube_FW/shci.h"
 #include "STM32Cube_FW/shci_tl.h"
-#include "STM32Cube_FW/stm_list.h"
 #include "STM32Cube_FW/app_conf.h"
 
 /* this one is for printing info content when HW serial enabled */
