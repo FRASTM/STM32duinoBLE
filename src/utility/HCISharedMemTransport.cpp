@@ -93,6 +93,7 @@ static bool sysevt_wait(void)
 /*  WEAK callbacks from the BLE TL driver - will be called under Interrupt */
 static void sysevt_received(void *pdata)
 {
+  UNUSED(pdata);
   /* For now only READY event is received, so we know this is it */
   sys_event = true;
   /* But later on ... we'll have to parse the answer */
@@ -149,11 +150,14 @@ static void syscmd_status_not(SHCI_TL_CmdStatus_t status)
 {
 #if defined(PRINT_IPCC_INFO)
   printf("syscmd_status_not, status:%d\r\n", status);
+#else
+  UNUSED(status);
 #endif /*(PRINT_IPCC_INFO)*/
 }
 
 void shci_notify_asynch_evt(void *pdata)
 {
+  UNUSED(pdata);
   /* Need to parse data in future version */
   shci_user_evt_proc();
 }
@@ -324,7 +328,6 @@ uint16_t mbox_write(uint8_t type, uint16_t len, const uint8_t *pData)
 /* This function fills in a BD address table */
 static bool get_bd_address(uint8_t *bd_addr)
 {
-  uint8_t *otp_addr;
   uint32_t udn;
   uint32_t company_id;
   uint32_t device_id;
